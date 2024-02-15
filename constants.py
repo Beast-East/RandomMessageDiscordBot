@@ -1,0 +1,6 @@
+KEY_GUILD_NAME = "guild_name"
+KEY_TARGET_CHANNEL_ID = "target_channel_id"
+KEY_ENABLE_ATTACHMENTS = "enable_attachments"
+KEY_ENABLE_URLS = "enable_urls"
+KEY_START_DATE = "start_date"
+KEY_END_DATE = "end_date"
