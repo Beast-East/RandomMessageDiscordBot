@@ -24,6 +24,7 @@ After inviting the bot to your Discord server, you can use the following command
 ### Planned Features
 1. Toggle the inclusion of messages with mentions in them on the selection process.
 2. Configure where the message should be selected from and where it should be sent to.
+3. Listen for the event of joining a new server and update the config accordingly.
 
 
 
