@@ -25,6 +25,7 @@ After inviting the bot to your Discord server, you can use the following command
 1. Toggle the inclusion of messages with mentions in them on the selection process.
 2. Configure where the message should be selected from and where it should be sent to($selectfrom and $sendto commands).
 3. Listen for the event of joining a new server and update the config accordingly.
+4. Allow users to set an interval where the bot will send a random message on its own ($interval minutes)
 
 
 
