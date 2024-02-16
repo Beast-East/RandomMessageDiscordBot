@@ -4,7 +4,7 @@ from discord.ext import commands
 from typing import NoReturn, Optional
 from config_manager import ConfigManager
 from random_message import RandomMessage
-from constants import (KEY_GUILD_NAME, KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
+from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
                        KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
 
 
@@ -38,8 +38,8 @@ class Commands(commands.Cog):
         current_config = self.config_manager.server_configs[str(message.guild.id)]
         if message.content == "$help":
             await self.help_command(message)
-        elif message.content.startswith("$targetchat"):
-            await self.target_chat_command(message, current_config)
+        elif message.content.startswith("$selectandsend"):
+            await self.select_and_send_command(message, current_config)
         elif message.content == "$urls":
             await self.urls_command(message, current_config)
         elif message.content == "$attachments":
@@ -60,18 +60,19 @@ class Commands(commands.Cog):
            ** Commands **
 
         `$help` - Shows this help message.
-        `$targetchat #channel` - Sets the target channel where random messages will be fetched from.
+        `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from
+        and the channel where said message will be sent to.
         `$urls` - Enables or disables the inclusion of messages containing URLs in random message selection.
         `$mentions` - Enables or disables the inclusion of messages containing URLs in random message selection.
         `$attachments` - Enables or disables the inclusion of messages with attachments in random message selection.
         `$ranmsg` - Sends a random message from the target channel.
 
-        Configure the bot by setting up a target channel first using `!targetchat`, followed by other configurations
-        as needed. 
+        Initialize the bot by using `$selectandsend` to define the source and destination channels for the random 
+        message feature to function correctly.
         """
         await message.channel.send(help_message)
 
-    async def target_chat_command(self, message: discord.Message, config: dict) -> NoReturn:
+    async def select_and_send_command(self, message: discord.Message, config: dict) -> NoReturn:
         """Sets the target text channel for random messages and updates the configuration.
 
         Args:
@@ -80,12 +81,14 @@ class Commands(commands.Cog):
         """
         first_message_datetime = await self.get_first_message_datetime(message.channel_mentions[0])
         if first_message_datetime:
-            config[KEY_TARGET_CHANNEL_ID] = str(message.channel_mentions[0].id)
+            config[KEY_SELECT_FROM] = str(message.channel_mentions[0].id)
+            config[KEY_SEND_TO] = str(message.channel_mentions[1].id)
             config[KEY_START_DATE] = first_message_datetime
             config[KEY_END_DATE] = message.created_at.isoformat()
-            await message.channel.send(f"Target channel of is set to {message.channel_mentions[0]}")
-            logging.info(f"Target channel of is set to {message.channel_mentions[0]} with startdate: "
-                         f"{config[KEY_START_DATE]} and \n\tenddate: {config[KEY_END_DATE]}"
+            await message.channel.send(f"Random messages will be selected from {message.channel_mentions[0]}"
+                                       f" and send to {message.channel_mentions[1]}")
+            logging.info(f"Select from {message.channel_mentions[0]} and send to {message.channel_mentions[1]}"
+                         f" with startdate: {config[KEY_START_DATE]} and \n\tenddate: {config[KEY_END_DATE]}"
                          f"in {config[KEY_GUILD_NAME]}")
             self.config_manager.save_configs_to_file()
         else:
