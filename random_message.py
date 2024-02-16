@@ -6,7 +6,7 @@ import asyncio
 from typing import NoReturn
 from datetime import timezone, timedelta, datetime
 from config_manager import ConfigManager
-from constants import (KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
+from constants import (KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
                        KEY_ENABLE_MENTIONS, KEY_END_DATE)
 
 
@@ -22,11 +22,11 @@ class RandomMessage:
         self.config_manager = config_manager
 
     async def send_random_message_around_random_date(self, guild_id: int, retries: int = 0) -> NoReturn:
-        """Attempts to send a random message from a target channel based on configured criteria.
+        """Attempts to fetch a random message from a source channel and send it to a destination channel.
 
-        Selects a random message from the history of a specified target channel within a guild. The selection is based
-        on a random datetime generated between configured start and end dates. It retries up to a maximum number of
-        times if conditions are not met.
+        Selects a random message from the history of a specified channel within a guild and sends it to another
+        channel specified. The selection is based on a random datetime generated between configured start and end dates.
+        It retries up to a maximum number of times if conditions are not met.
 
         Args:
             guild_id (int): The ID of the guild from which to fetch and send the message.
@@ -49,25 +49,27 @@ class RandomMessage:
         # Guild configuration criteria for the selection of the message
         start_date = guild_config[KEY_START_DATE]
         end_date = guild_config[KEY_END_DATE]
-        target_channel_id = guild_config[KEY_TARGET_CHANNEL_ID]
+        select_from = guild_config[KEY_SELECT_FROM]
+        send_to = guild_config[KEY_SEND_TO]
         enable_attachments = guild_config[KEY_ENABLE_ATTACHMENTS]
         enable_urls = guild_config[KEY_ENABLE_URLS]
         enable_mentions = guild_config[KEY_ENABLE_MENTIONS]
 
         # Fetch random message from channel's history
         try:
-            if target_channel_id is not None:
-                # Fetch target channel, if it exists
-                channel = await self.bot.fetch_channel(target_channel_id)
+            if select_from is not None:
+                # Fetch the channel to select message, if it exists
+                channel_from = await self.bot.fetch_channel(select_from)
+                channel_send_to = await self.bot.fetch_channel(send_to)
 
                 random_date = self.generate_random_date_time(str_guild_id)
 
                 if start_date is None or end_date is None:
-                    await channel.send("Use !targetchannel first")
+                    await channel_from.send("Use !targetchannel first")
                     logging.info("Start date or end date not set for this server.")
                     return
 
-                random_message = await self.get_random_message(channel=channel, date=random_date)
+                random_message = await self.get_random_message(channel=channel_from, date=random_date)
                 if random_message:
                     # Check difference between generated time and the date the message was created at
                     # and if the message contains a URL
@@ -82,8 +84,8 @@ class RandomMessage:
                     should_send &= enable_mentions or not random_message.mentions
 
                     if should_send:
-                        await channel.send(random_message.content)
-                        logging.info(f"Message was sent in {channel.name}: \'{random_message.content}\'")
+                        await channel_send_to.send(random_message.content)
+                        logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
                     else:
                         await asyncio.sleep(1)  # Add a short delay before retrying
                         await self.send_random_message_around_random_date(guild_id, retries + 1)
