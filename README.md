@@ -20,7 +20,7 @@ After inviting the bot to your Discord server, you can use the following command
 - `$attachments`: Toggles the inclusion of messages with attachments(True/False).
 - `$mentions`: Toggles the inclusion of messages with mentions(True/False).
 - `$ranmsg`: Sends a random message from the configured channel(targetchat). 
-<br/>Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly.
+<br/><br/>Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly.
 
 
 ### Planned Features
