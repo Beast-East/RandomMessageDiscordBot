@@ -7,7 +7,7 @@ from typing import NoReturn
 from datetime import timezone, timedelta, datetime
 from config_manager import ConfigManager
 from constants import (KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
-                       KEY_END_DATE)
+                       KEY_ENABLE_MENTIONS, KEY_END_DATE)
 
 
 class RandomMessage:
@@ -25,8 +25,8 @@ class RandomMessage:
         """Attempts to send a random message from a target channel based on configured criteria.
 
         Selects a random message from the history of a specified target channel within a guild. The selection is based
-        on a random datetime generated between configured start and end dates. It retries up to a maximum number of times
-        if conditions are not met.
+        on a random datetime generated between configured start and end dates. It retries up to a maximum number of
+        times if conditions are not met.
 
         Args:
             guild_id (int): The ID of the guild from which to fetch and send the message.
@@ -36,7 +36,7 @@ class RandomMessage:
             discord.HTTPException: Failure in fetching guild information or message history due to network issues.
             discord.Forbidden: Bot lacks permissions to fetch channel information or message history.
         """
-        max_retries = 8
+        max_retries = 6
         if retries >= max_retries:
             logging.info(f"Maximum attempts reached, stopping further message fetching.(attempts={retries})")
             return
@@ -46,11 +46,13 @@ class RandomMessage:
         logging.debug(f"Start date type: {type(guild_config[KEY_START_DATE])}, value: '{guild_config[KEY_START_DATE]}'")
         logging.debug(f"End date type: {type(guild_config[KEY_END_DATE])}, value: '{guild_config[KEY_END_DATE]}'")
 
+        # Guild configuration criteria for the selection of the message
         start_date = guild_config[KEY_START_DATE]
         end_date = guild_config[KEY_END_DATE]
         target_channel_id = guild_config[KEY_TARGET_CHANNEL_ID]
         enable_attachments = guild_config[KEY_ENABLE_ATTACHMENTS]
         enable_urls = guild_config[KEY_ENABLE_URLS]
+        enable_mentions = guild_config[KEY_ENABLE_MENTIONS]
 
         # Fetch random message from channel's history
         try:
@@ -73,9 +75,11 @@ class RandomMessage:
                     difference = abs(random_message.created_at - random_date)
                     contains_url = self.search_for_url(random_message.content)
 
+                    # Check that the selected message meets the criteria from the guild's configuration
                     should_send = difference <= max_difference
                     should_send &= enable_urls or not contains_url
                     should_send &= enable_attachments or not random_message.attachments
+                    should_send &= enable_mentions or not random_message.mentions
 
                     if should_send:
                         await channel.send(random_message.content)
