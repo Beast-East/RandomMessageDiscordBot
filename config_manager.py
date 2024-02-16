@@ -3,8 +3,8 @@ import discord
 import logging
 from typing import NoReturn
 from datetime import datetime
-from constants import (KEY_GUILD_NAME, KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
-                       KEY_END_DATE)
+from constants import (KEY_GUILD_NAME, KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
+                       KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
 
 
 class ConfigManager:
@@ -38,6 +38,7 @@ class ConfigManager:
                     KEY_TARGET_CHANNEL_ID: None,
                     KEY_ENABLE_ATTACHMENTS: False,
                     KEY_ENABLE_URLS: False,
+                    KEY_ENABLE_MENTIONS: False,
                     KEY_START_DATE: None,
                     KEY_END_DATE: None,
                 }
