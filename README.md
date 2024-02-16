@@ -4,9 +4,8 @@
 This Discord bot can select a random message from a text channel's history and send it. The selection proccess takes into account the configuration of the guild, like select messages including attachments or urls or not.
 
 ## Features
-- **Command Handling**: Processes user commands and performs actions accordingly.
-- **Server Configuration**: Allows server-specific settings for the bot's selection of random messages(urls, attachments).
 - **Random Messages**: Selects a random message based on the target text channel's entire history and sends it there($targetchat must be called first for it to work).
+- **Random Message Configuration**: Allows server-specific settings for the bot's selection of random messages(urls, attachments).
 
 ## Installation
 To install and run this bot on your server, follow these steps:
