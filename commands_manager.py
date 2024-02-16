@@ -4,8 +4,8 @@ from discord.ext import commands
 from typing import NoReturn, Optional
 from config_manager import ConfigManager
 from random_message import RandomMessage
-from constants import (KEY_GUILD_NAME, KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
-                       KEY_END_DATE)
+from constants import (KEY_GUILD_NAME, KEY_TARGET_CHANNEL_ID, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
+                       KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
 
 
 class Commands(commands.Cog):
@@ -44,6 +44,8 @@ class Commands(commands.Cog):
             await self.urls_command(message, current_config)
         elif message.content == "$attachments":
             await self.attachments_command(message, current_config)
+        elif message.content == "$mentions":
+            await self.mentions_command(message, current_config)
         elif message.content == "$ranmsg":
             await self.random_message_command(message.guild)
 
@@ -60,6 +62,7 @@ class Commands(commands.Cog):
         `$help` - Shows this help message.
         `$targetchat #channel` - Sets the target channel where random messages will be fetched from.
         `$urls` - Enables or disables the inclusion of messages containing URLs in random message selection.
+        `$mentions` - Enables or disables the inclusion of messages containing URLs in random message selection.
         `$attachments` - Enables or disables the inclusion of messages with attachments in random message selection.
         `$ranmsg` - Sends a random message from the target channel.
 
@@ -82,8 +85,8 @@ class Commands(commands.Cog):
             config[KEY_END_DATE] = message.created_at.isoformat()
             await message.channel.send(f"Target channel of is set to {message.channel_mentions[0]}")
             logging.info(f"Target channel of is set to {message.channel_mentions[0]} with startdate: "
-                         f"{config[KEY_START_DATE]} and \nenddate: {config[KEY_END_DATE]}"
-                         f"in {KEY_GUILD_NAME}")
+                         f"{config[KEY_START_DATE]} and \n\tenddate: {config[KEY_END_DATE]}"
+                         f"in {config[KEY_GUILD_NAME]}")
             self.config_manager.save_configs_to_file()
         else:
             await message.channel.send(f"There was an error in setting ({message.channel.name} as the target channel")
@@ -97,7 +100,7 @@ class Commands(commands.Cog):
         """
         config[KEY_ENABLE_URLS] = not config[KEY_ENABLE_URLS]
         await message.channel.send(f"URLs set to {config[KEY_ENABLE_URLS]}")
-        logging.info(f"URLs were set to {config[KEY_ENABLE_URLS]} in {KEY_GUILD_NAME}")
+        logging.info(f"URLs were set to {config[KEY_ENABLE_URLS]} in {config[KEY_GUILD_NAME]}")
         self.config_manager.save_configs_to_file()
 
     async def attachments_command(self, message: discord.Message, config: dict) -> NoReturn:
@@ -109,7 +112,19 @@ class Commands(commands.Cog):
         """
         config[KEY_ENABLE_ATTACHMENTS] = not config[KEY_ENABLE_ATTACHMENTS]
         await message.channel.send(f"Attachemnts set to {config[KEY_ENABLE_ATTACHMENTS]}")
-        logging.info(f"Attachments was set to: {config[KEY_ENABLE_ATTACHMENTS]} in {KEY_GUILD_NAME}")
+        logging.info(f"Attachments was set to: {config[KEY_ENABLE_ATTACHMENTS]} in {config[KEY_GUILD_NAME]}")
+        self.config_manager.save_configs_to_file()
+
+    async def mentions_command(self, message: discord.Message, config: dict) -> NoReturn:
+        """Toggles the inclusion of attachments in random message selections.
+
+        Args:
+            message (discord.Message): The message invoking the mentions command.
+            config (dict): The server's current configuration settings.
+        """
+        config[KEY_ENABLE_MENTIONS] = not config[KEY_ENABLE_MENTIONS]
+        await message.channel.send(f"Mentions set to {config[KEY_ENABLE_MENTIONS]}")
+        logging.info(f"Mentions was set to: {config[KEY_ENABLE_MENTIONS]} in {config[KEY_GUILD_NAME]}")
         self.config_manager.save_configs_to_file()
 
     async def random_message_command(self, guild: discord.Guild) -> NoReturn:
