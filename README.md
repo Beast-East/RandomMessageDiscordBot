@@ -19,8 +19,8 @@ After inviting the bot to your Discord server, you can use the following command
 - `$urls`: Toggles the inclusion of messages with URLs(True/False).
 - `$attachments`: Toggles the inclusion of messages with attachments(True/False).
 - `$mentions`: Toggles the inclusion of messages with mentions(True/False).
-- `$ranmsg`: Sends a random message from the configured channel(targetchat).
-Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly.
+- `$ranmsg`: Sends a random message from the configured channel(targetchat). 
+\nInitialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly.
 
 
 ### Planned Features
