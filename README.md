@@ -1,7 +1,8 @@
 # Random Message Discord Bot
 
 ## Description
-This Discord bot can select a random message from a text channel's history and send it. The selection proccess takes into account the configuration of the guild, like select messages including attachments or urls or not.
+This Discord bot can select a random message from a text channel's history and send it. The selection of said message can be configured through the use commands. For example, including/excluding messages that contain 
+URLs/attachments/mentions.
 
 ## Features
 - **Random Messages**: Selects a random message based on the target text channel's entire history and sends it there($targetchat must be called first for it to work).
@@ -17,14 +18,14 @@ After inviting the bot to your Discord server, you can use the following command
 - `$targetchat #channel`: Sets the target channel for random message fetching.
 - `$urls`: Toggles the inclusion of messages with URLs(True/False).
 - `$attachments`: Toggles the inclusion of messages with attachments(True/False).
+- `$mentions`: Toggles the inclusion of messages with mentions(True/False).
 - `$ranmsg`: Sends a random message from the configured channel(targetchat).
 
 
 ### Planned Features
-1. Toggle the inclusion of messages with mentions in them on the selection process.
-2. Configure where the message should be selected from and where it should be sent to($selectfrom and $sendto commands).
+1. Configure where the message should be selected from and where it should be sent to($selectfrom and $sendto commands).
+2. Allow users to set an interval where the bot will send a random message on its own ($interval minutes)
 3. Listen for the event of joining a new server and update the config accordingly.
-4. Allow users to set an interval where the bot will send a random message on its own ($interval minutes)
 
 
 
