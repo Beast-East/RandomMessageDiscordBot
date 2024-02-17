@@ -16,7 +16,7 @@ To install and run this bot on your server(can support mutliple servers), follow
 ![image](https://github.com/Beast-East/random-message-discord-bot/assets/138492796/78e11a91-bd03-403d-ad10-0e1b73ba42b3)
 5. Create a file named `.env` in the same folder as the other program files and open it with a text editor of your choice. 
 In it, add `BOT_TOKEN=your_token_here`, where *your_token_here* should be replaced with your token(spaces should not be included anywhere in the .env file).
-6. Execute run.py on the terminal using `directory\run.py` where *directory* the same as for requirements.txt.
+6. Execute run.py on the terminal using `directory\run.py` where *directory* the same as step 3.
 
 ## Usage
 After inviting the bot to your Discord server, you can use the following commands:
