@@ -17,6 +17,7 @@ To install and run this bot on your server(can support mutliple servers), follow
 5. Rename .env.template to `.env` and open it with a text editor of your choice. 
 In it, `BOT_TOKEN=your_token_here`, where *your_token_here* should be replaced with your token(spaces should not be included anywhere in the .env file).
 6. Execute run.py on the terminal using `directory\run.py` where *directory* the same as step 3.
+<br/><br/>The bot will continue to run in the background even if the terminal is closed after it has logged in. You can close it from the task manager.
 
 ## Usage
 After inviting the bot to your Discord server, you can use the following commands:
