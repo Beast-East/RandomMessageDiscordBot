@@ -81,7 +81,8 @@ class RandomMessage:
                     should_send = difference <= max_difference
                     should_send &= enable_urls or not contains_url
                     should_send &= enable_attachments or not random_message.attachments
-                    should_send &= enable_mentions or not random_message.mentions
+                    should_send &= enable_mentions or not (random_message.mentions or random_message.role_mentions
+                                                           or random_message.mention_everyone)
 
                     if should_send:
                         await channel_send_to.send(random_message.content)
