@@ -46,7 +46,20 @@ class Bot(discord.Client):
         logging.info(f"Ready: {self.user}")
         # Load server configutarions and add new server configuaration to it if availabe
         self.config_manager.load_configs()
-        self.config_manager.update_configs_on_run()
+        self.config_manager.update_configs()
+
+    async def on_guild_join(self, guild: discord.Guild) -> NoReturn:
+        """Initialize guild's config upon joining, if it doesn't already exist
+        Args:
+            guild (discord.Guild): Discord guild instance.
+        """
+        logging.info(f"Joinned a new guild: {guild.name} (ID: {guild.id})")
+        if str(guild.id) not in self.config_manager.server_configs:
+            self.config_manager.initialize_guild_config(guild)
+            self.config_manager.save_configs_to_file()
+            logging.info(f"Default configuration initialized for guild: {guild.name} (ID: {guild.id})")
+        else:
+            logging.info(f"Existing configuration found for guild: {guild.name} (ID: {guild.id}), no update necessary.")
 
     async def on_message(self, message: discord.Message) -> NoReturn:
         """Responds to new messages, excluding those sent by the bot itself.
