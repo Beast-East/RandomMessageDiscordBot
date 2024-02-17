@@ -27,24 +27,30 @@ class ConfigManager:
         self.server_configs = {}
         self.load_configs()
 
-    def update_configs_on_run(self) -> NoReturn:
+    def update_configs(self) -> NoReturn:
         """Updates the server configurations with any new servers the bot has joined since it last run."""
         for guild in self.bot.guilds:
-            # Convert guild.id to string to store it to avoid discrepancies in accessing it and storing it.
-            guild_id = str(guild.id)
-            if guild_id not in self.server_configs:
-                self.server_configs[guild_id] = {
-                    KEY_GUILD_NAME: guild.name,
-                    KEY_SELECT_FROM: None,
-                    KEY_SEND_TO: None,
-                    KEY_ENABLE_ATTACHMENTS: False,
-                    KEY_ENABLE_URLS: False,
-                    KEY_ENABLE_MENTIONS: False,
-                    KEY_START_DATE: None,
-                    KEY_END_DATE: None,
-                }
-                logging.info(f"{guild.name}({guild.id}) is being added to server_configs")
-                self.save_configs_to_file()
+            self.initialize_guild_config(guild)
+
+    def initialize_guild_config(self, guild: discord.Guild):
+        """Initialize guild's config
+        Args:
+            guild (discord.Guild): Discord guild instance
+        """
+        guild_id = str(guild.id)
+        if guild_id not in self.server_configs:
+            self.server_configs[guild_id] = {
+                KEY_GUILD_NAME: guild.name,
+                KEY_SELECT_FROM: None,
+                KEY_SEND_TO: None,
+                KEY_ENABLE_ATTACHMENTS: False,
+                KEY_ENABLE_URLS: False,
+                KEY_ENABLE_MENTIONS: False,
+                KEY_START_DATE: None,
+                KEY_END_DATE: None,
+            }
+            logging.info(f"{guild.name}({guild.id}) is being added to server_configs")
+            self.save_configs_to_file()
 
     def load_configs(self) -> NoReturn:
         """Loads the server configurations from a JSON file."""
