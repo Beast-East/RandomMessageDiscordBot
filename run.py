@@ -1,4 +1,4 @@
-from bot_functionality import Bot
+from bot_main import Bot
 
 
 def main():
