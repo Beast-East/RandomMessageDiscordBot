@@ -63,9 +63,12 @@ class Commands(commands.Cog):
         `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from
         and the channel where said message will be sent to.
         `$urls` - Enables or disables the inclusion of messages containing URLs in random message selection.
+        Disabled by default.
         `$mentions` - Enables or disables the inclusion of messages containing URLs in random message selection.
+        Disabled by default.
         `$attachments` - Enables or disables the inclusion of messages with attachments in random message selection.
-        `$ranmsg` - Sends a random message from the target channel.
+        Disabled by default.
+        `$ranmsg` - Sends a random message from configured #sourcechannel to the #destchannel.
 
         Initialize the bot by using `$selectandsend` to define the source and destination channels for the random 
         message feature to function correctly.
