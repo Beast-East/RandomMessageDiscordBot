@@ -8,7 +8,14 @@ This Discord bot can select a random message from a text channel's history and s
 - **Random Message Configuration**: Allows server-specific settings for the bot's selection of random messages(urls, attachments, mentions).
 
 ## Installation
-To install and run this bot on your server, follow these steps:
+To install and run this bot on your server(can support mutliple servers), follow these steps:
+1. Install [python](https://www.python.org/downloads/)(be sure to check the "Add Python to PATH" checkbox during installation).
+2. Download this repository and extract the files onto a folder.
+3. Install dependencies by executing the following command on the terminal: `pip install -r requirements.txt`.
+4. Generate a [discord bot token](https://discordgsm.com/guide/how-to-get-a-discord-bot-token) and enable the following permissions: ![image](https://github.com/Beast-East/random-message-discord-bot/assets/138492796/78e11a91-bd03-403d-ad10-0e1b73ba42b3)
+5. Create a file named `.env` in the same folder as the other program files and open it with a text editor of your choice. 
+In it, add `BOT_TOKEN=your_token_here`, where *your_token_here* should be replaced with your token(spaces should not be included anywhere in the .env file).
+6. Execute run.py on the command line using `discord_bot_directory\run.py` where *discord_bot_directory* the directory of the folder that was previously extracted is located.
 
 
 ## Usage
