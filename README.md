@@ -20,11 +20,3 @@ After inviting the bot to your Discord server, you can use the following command
 - `$mentions`: Toggles the inclusion of messages with mentions(True/False). False by default. When enabled, @everyone, @rolementions and @member mentions are all included.
 - `$ranmsg`: Sends a random message from the configured #sourcechannel to the #destchannel.
 <br/><br/>❗Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly❗
-
-
-### Planned Features
-Listen for the event of joining a new server and update the config accordingly.
-
-
-
-
