@@ -82,15 +82,20 @@ class Commands(commands.Cog):
             message (discord.Message): The command message with channel mention.
             config (dict): The server's current configuration settings.
         """
-        first_message_datetime = await self.get_first_message_datetime(message.channel_mentions[0])
-        if first_message_datetime:
-            config[KEY_SELECT_FROM] = str(message.channel_mentions[0].id)
-            config[KEY_SEND_TO] = str(message.channel_mentions[1].id)
+        channel_mentions = message.channel_mentions
+        if channel_mentions:
+            first_message_datetime = await self.get_first_message_datetime(channel_mentions[0])
+            config[KEY_SELECT_FROM] = str(channel_mentions[0].id)
+            send_to_channel = message.channel_mentions[1] if len(channel_mentions) > 1 \
+                else message.channel_mentions[0]
+            config[KEY_SEND_TO] = str(send_to_channel.id)
+
             config[KEY_START_DATE] = first_message_datetime
             config[KEY_END_DATE] = message.created_at.isoformat()
-            await message.channel.send(f"Random messages will be selected from {message.channel_mentions[0]}"
-                                       f" and send to {message.channel_mentions[1]}")
-            logging.info(f"Select from {message.channel_mentions[0]} and send to {message.channel_mentions[1]}"
+
+            await message.channel.send(f"Random messages will be selected from {channel_mentions[0]}"
+                                       f" and send to {send_to_channel}")
+            logging.info(f"Select from {channel_mentions[0]} and send to {send_to_channel}"
                          f" with startdate: {config[KEY_START_DATE]} and \n\tenddate: {config[KEY_END_DATE]}"
                          f"in {config[KEY_GUILD_NAME]}")
             self.config_manager.save_configs_to_file()
