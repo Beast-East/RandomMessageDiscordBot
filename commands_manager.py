@@ -122,7 +122,7 @@ class Commands(commands.Cog):
             config (dict): The server's current configuration settings.
         """
         config[KEY_ENABLE_ATTACHMENTS] = not config[KEY_ENABLE_ATTACHMENTS]
-        await message.channel.send(f"Attachemnts set to {config[KEY_ENABLE_ATTACHMENTS]}")
+        await message.channel.send(f"Attachments set to {config[KEY_ENABLE_ATTACHMENTS]}")
         logging.info(f"Attachments was set to: {config[KEY_ENABLE_ATTACHMENTS]} in {config[KEY_GUILD_NAME]}")
         self.config_manager.save_configs_to_file()
 
