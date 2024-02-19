@@ -1,6 +1,5 @@
 KEY_GUILD_NAME = "guild_name"
 KEY_ENABLE_ATTACHMENTS = "enable_attachments"
-KEY_ENABLE_URLS = "enable_urls"
 KEY_ENABLE_MENTIONS = "enable_mentions"
 KEY_START_DATE = "start_date"
 KEY_END_DATE = "end_date"

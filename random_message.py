@@ -1,12 +1,11 @@
 import discord
 import logging
 import random
-import re
 import asyncio
 from typing import NoReturn
 from datetime import timezone, timedelta, datetime
 from config_manager import ConfigManager
-from constants import (KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
+from constants import (KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_START_DATE,
                        KEY_ENABLE_MENTIONS, KEY_END_DATE)
 
 
@@ -52,7 +51,6 @@ class RandomMessage:
         select_from = guild_config[KEY_SELECT_FROM]
         send_to = guild_config[KEY_SEND_TO]
         enable_attachments = guild_config[KEY_ENABLE_ATTACHMENTS]
-        enable_urls = guild_config[KEY_ENABLE_URLS]
         enable_mentions = guild_config[KEY_ENABLE_MENTIONS]
 
         # Fetch random message from channel's history
@@ -72,15 +70,12 @@ class RandomMessage:
                 random_message = await self.get_random_message(channel=channel_from, date=random_date)
                 if random_message:
                     # Check difference between generated time and the date the message was created at
-                    # and if the message contains a URL
                     max_difference = timedelta(days=10)
                     difference = abs(random_message.created_at - random_date)
-                    contains_url = self.search_for_url(random_message.content)
 
                     # Check that the selected message meets the criteria from the guild's configuration
                     should_send = difference <= max_difference
-                    should_send &= enable_urls or not contains_url
-                    should_send &= enable_attachments or not random_message.attachments
+                    should_send &= enable_attachments or (not random_message.attachments and not random_message.embeds)
                     should_send &= enable_mentions or not (random_message.mentions or random_message.role_mentions
                                                            or random_message.mention_everyone)
 
@@ -148,17 +143,3 @@ class RandomMessage:
             logging.error("You do not have permissions to get channel message history")
         except discord.HTTPException:
             logging.error(f"The request to get message history failed. Channel ID: {channel}")
-
-    @staticmethod
-    def search_for_url(message: str) -> bool:
-        """Determines if a message contains a URL.
-
-        Args:
-            message (str): The content of the message to search.
-
-        Returns:
-            bool: True if the message contains a URL, False otherwise.
-        """
-        url_pattern = (r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|"
-                       r"(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))")
-        return re.search(url_pattern, message) is not None

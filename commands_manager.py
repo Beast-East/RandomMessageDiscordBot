@@ -4,7 +4,7 @@ from discord.ext import commands
 from typing import NoReturn, Optional
 from config_manager import ConfigManager
 from random_message import RandomMessage
-from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
+from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS,
                        KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
 
 
@@ -40,8 +40,6 @@ class Commands(commands.Cog):
             await self.help_command(message)
         elif message.content.startswith("$selectandsend"):
             await self.select_and_send_command(message, current_config)
-        elif message.content == "$urls":
-            await self.urls_command(message, current_config)
         elif message.content == "$attachments":
             await self.attachments_command(message, current_config)
         elif message.content == "$mentions":
@@ -100,18 +98,6 @@ class Commands(commands.Cog):
             self.config_manager.save_configs_to_file()
         else:
             await message.channel.send(f"There was an error in setting ({message.channel.name} as the target channel")
-
-    async def urls_command(self, message: discord.Message, config: dict) -> NoReturn:
-        """Toggles the inclusion of URLs in random message selections.
-
-        Args:
-            message (discord.Message): The message invoking the urls command.
-            config (dict): The server's current configuration settings.
-        """
-        config[KEY_ENABLE_URLS] = not config[KEY_ENABLE_URLS]
-        await message.channel.send(f"URLs set to {config[KEY_ENABLE_URLS]}")
-        logging.info(f"URLs were set to {config[KEY_ENABLE_URLS]} in {config[KEY_GUILD_NAME]}")
-        self.config_manager.save_configs_to_file()
 
     async def attachments_command(self, message: discord.Message, config: dict) -> NoReturn:
         """Toggles the inclusion of attachments in random message selections.
