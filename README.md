@@ -30,4 +30,4 @@ After inviting the bot to your Discord server, you can use the following command
 <br/><br/>❗Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly❗
 
 ### Known Issues
-- **Random Message Selection Failure**: After the removal of the $urls command and some changes in the funcionality of the $attachments command, users might experience frequent failures in the random message selection process. A fix will be employed in coming updates.
+- **Random Message Selection Failure**: After the removal of the $urls command and some changes in the functionality of the $attachments command, users might experience frequent failures in the random message selection process. A fix will be employed in coming updates.
