@@ -57,21 +57,20 @@ class Commands(commands.Cog):
             message (discord.Message): The message invoking the help command.
         """
         help_message = """
-           ** Commands **
+        ** Commands **
 
         `$help` - Shows this help message.
         `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from
         and the channel where said message will be sent to.
-        `$urls` - Enables or disables the inclusion of messages containing URLs in random message selection.
-        Disabled by default.
-        `$mentions` - Enables or disables the inclusion of messages containing URLs in random message selection.
-        Disabled by default.
-        `$attachments` - Enables or disables the inclusion of messages with attachments in random message selection.
-        Disabled by default.
+        `$urls` - Toggles the inclusion of messages containing URLs in random message selection(True/False).
+         False by default.
+        `$mentions` -  Toggles the inclusion of messages with mentions(True/False). False by default. When enabled, 
+        @(everyone), @(rolementions) and @(member) mentions are all included.
+        `$attachments` - Toggles the inclusion of messages with attachments(True/False). False by default.
         `$ranmsg` - Sends a random message from configured #sourcechannel to the #destchannel.
 
-        Initialize the bot by using `$selectandsend` to define the source and destination channels for the random 
-        message feature to function correctly.
+        Use $selectandsend to define the source and destination channels for the random message feature to 
+        function correctly❗
         """
         await message.channel.send(help_message)
 
