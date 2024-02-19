@@ -75,7 +75,7 @@ class RandomMessage:
 
                     # Check that the selected message meets the criteria from the guild's configuration
                     should_send = difference <= max_difference
-                    should_send &= enable_attachments or not random_message.attachments
+                    should_send &= enable_attachments or (not random_message.attachments and not random_message.embeds)
                     should_send &= enable_mentions or not (random_message.mentions or random_message.role_mentions
                                                            or random_message.mention_everyone)
 
