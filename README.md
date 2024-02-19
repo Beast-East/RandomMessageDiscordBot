@@ -24,7 +24,6 @@ Finally, click "save as" and name it `.env`.
 After inviting the bot to your Discord server, you can use the following commands:
 - `$help`: Shows a help message with all available commands.
 - `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from and the channel where said message will be sent to.
-- `$urls`: Toggles the inclusion of messages with URLs(True/False). False by default.
 - `$attachments`: Toggles the inclusion of messages with attachments(True/False). False by default.
 - `$mentions`: Toggles the inclusion of messages with mentions(True/False). False by default. When enabled, @everyone, @rolementions and @member mentions are all included.
 - `$ranmsg`: Sends a random message from the configured #sourcechannel to the #destchannel.
