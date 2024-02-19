@@ -61,11 +61,11 @@ class Commands(commands.Cog):
         `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from
         and the channel where said message will be sent to.
         `$mentions` - Toggles the inclusion of messages with mentions(True/False). False by default. When enabled, 
-        @everyone, @rolementions and @member mentions are all included.
+        @(everyone), @(role_mentions) and @(member) mentions are all included.
         `$attachments` - Toggles the inclusion of messages with attachments(True/False). False by default.
         `$ranmsg` - Sends a random message from the configured #sourcechannel to the #destchannel.
 
-        Initialize the bot by using `$selectandsend` to define the source and destination channels for the random 
+        Use `$selectandsend` to define the source and destination channels for the random 
         message feature to function correctly❗
         """
         await message.channel.send(help_message)
