@@ -4,7 +4,7 @@ from discord.ext import commands
 from typing import NoReturn, Optional
 from config_manager import ConfigManager
 from random_message import RandomMessage
-from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
+from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS,
                        KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
 
 
@@ -40,8 +40,6 @@ class Commands(commands.Cog):
             await self.help_command(message)
         elif message.content.startswith("$selectandsend"):
             await self.select_and_send_command(message, current_config)
-        elif message.content == "$urls":
-            await self.urls_command(message, current_config)
         elif message.content == "$attachments":
             await self.attachments_command(message, current_config)
         elif message.content == "$mentions":
@@ -62,16 +60,13 @@ class Commands(commands.Cog):
         `$help` - Shows this help message.
         `$selectandsend *#sourcechannel* *#destchannel*` - Set the channel where random messages will be selected from
         and the channel where said message will be sent to.
-        `$urls` - Enables or disables the inclusion of messages containing URLs in random message selection.
-        Disabled by default.
-        `$mentions` - Enables or disables the inclusion of messages containing URLs in random message selection.
-        Disabled by default.
-        `$attachments` - Enables or disables the inclusion of messages with attachments in random message selection.
-        Disabled by default.
-        `$ranmsg` - Sends a random message from configured #sourcechannel to the #destchannel.
+        `$mentions` - Toggles the inclusion of messages with mentions(True/False). False by default. When enabled, 
+        @everyone, @rolementions and @member mentions are all included.
+        `$attachments` - Toggles the inclusion of messages with attachments(True/False). False by default.
+        `$ranmsg` - Sends a random message from the configured #sourcechannel to the #destchannel.
 
         Initialize the bot by using `$selectandsend` to define the source and destination channels for the random 
-        message feature to function correctly.
+        message feature to function correctly❗
         """
         await message.channel.send(help_message)
 
@@ -102,18 +97,6 @@ class Commands(commands.Cog):
         else:
             await message.channel.send(f"There was an error in setting ({message.channel.name} as the target channel")
 
-    async def urls_command(self, message: discord.Message, config: dict) -> NoReturn:
-        """Toggles the inclusion of URLs in random message selections.
-
-        Args:
-            message (discord.Message): The message invoking the urls command.
-            config (dict): The server's current configuration settings.
-        """
-        config[KEY_ENABLE_URLS] = not config[KEY_ENABLE_URLS]
-        await message.channel.send(f"URLs set to {config[KEY_ENABLE_URLS]}")
-        logging.info(f"URLs were set to {config[KEY_ENABLE_URLS]} in {config[KEY_GUILD_NAME]}")
-        self.config_manager.save_configs_to_file()
-
     async def attachments_command(self, message: discord.Message, config: dict) -> NoReturn:
         """Toggles the inclusion of attachments in random message selections.
 
@@ -122,7 +105,7 @@ class Commands(commands.Cog):
             config (dict): The server's current configuration settings.
         """
         config[KEY_ENABLE_ATTACHMENTS] = not config[KEY_ENABLE_ATTACHMENTS]
-        await message.channel.send(f"Attachemnts set to {config[KEY_ENABLE_ATTACHMENTS]}")
+        await message.channel.send(f"Attachments set to {config[KEY_ENABLE_ATTACHMENTS]}")
         logging.info(f"Attachments was set to: {config[KEY_ENABLE_ATTACHMENTS]} in {config[KEY_GUILD_NAME]}")
         self.config_manager.save_configs_to_file()
 
