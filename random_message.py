@@ -85,8 +85,12 @@ class RandomMessage:
                                                            or random_message.mention_everyone)
 
                     if should_send:
-                        await channel_send_to.send(random_message.content)
-                        logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
+                        if random_message.attachments:
+                            await channel_send_to.send(random_message.attachments[0].url)
+                            logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
+                        else:
+                            await channel_send_to.send(random_message.content)
+                            logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
                     else:
                         await asyncio.sleep(1)  # Add a short delay before retrying
                         await self.send_random_message_around_random_date(guild_id, retries + 1)
