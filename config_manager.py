@@ -4,7 +4,7 @@ import logging
 from typing import NoReturn
 from datetime import datetime
 from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
-                       KEY_ENABLE_MENTIONS, KEY_START_DATE, KEY_END_DATE)
+                       KEY_ENABLE_MENTIONS, KEY_START_DATE)
 
 
 class ConfigManager:
@@ -16,12 +16,7 @@ class ConfigManager:
             server_configs (dict): A dictionary holding server-specific configurations.
     """
     def __init__(self, bot: discord.Client, config_path="server_configs.json") -> NoReturn:
-        """Initializes the configuration manager with the bot instance and configuration path.
-
-        Args:
-            bot (discord.Client): The Discord client instance.
-            config_path (str): The path to the JSON file for storing configurations. Defaults to 'server_configs.json'.
-        """
+        """Initializes the configuration manager with the bot instance and configuration path. """
         self.bot = bot
         self.config_path = config_path
         self.server_configs = {}
@@ -33,10 +28,7 @@ class ConfigManager:
             self.initialize_guild_config(guild)
 
     def initialize_guild_config(self, guild: discord.Guild):
-        """Initialize guild's config
-        Args:
-            guild (discord.Guild): Discord guild instance
-        """
+        """Initialize guild's config"""
         guild_id = str(guild.id)
         if guild_id not in self.server_configs:
             self.server_configs[guild_id] = {
@@ -47,7 +39,6 @@ class ConfigManager:
                 KEY_ENABLE_URLS: False,
                 KEY_ENABLE_MENTIONS: False,
                 KEY_START_DATE: None,
-                KEY_END_DATE: None,
             }
             logging.info(f"{guild.name}({guild.id}) is being added to server_configs")
             self.save_configs_to_file()
