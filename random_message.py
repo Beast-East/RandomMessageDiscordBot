@@ -7,158 +7,102 @@ from typing import NoReturn
 from datetime import timezone, timedelta, datetime
 from config_manager import ConfigManager
 from constants import (KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS, KEY_START_DATE,
-                       KEY_ENABLE_MENTIONS, KEY_END_DATE)
+                       KEY_ENABLE_MENTIONS)
 
 
 class RandomMessage:
-    """Manages the fetching and sending of random messages within the Discord bot.
-
-    Attributes:
-        bot (discord.Client): The Discord client instance.
-        config_manager (ConfigManager): The configuration manager instance to handle server configurations.
-    """
+    """Manages the fetching and sending of random messages within the Discord bot."""
     def __init__(self, bot: discord.Client, config_manager: ConfigManager) -> NoReturn:
         self.bot = bot
         self.config_manager = config_manager
 
     async def send_random_message_around_random_date(self, guild_id: int, retries: int = 0) -> NoReturn:
-        """Attempts to fetch a random message from a source channel and send it to a destination channel.
-
-        Selects a random message from the history of a specified channel within a guild and sends it to another
-        channel specified. The selection is based on a random datetime generated between configured start and end dates.
-        It retries up to a maximum number of times if conditions are not met.
-
-        Args:
-            guild_id (int): The ID of the guild from which to fetch and send the message.
-            retries (int): The current number of attempts made. Starts by defualt from 0.
-
-        Raises:
-            discord.HTTPException: Failure in fetching guild information or message history due to network issues.
-            discord.Forbidden: Bot lacks permissions to fetch channel information or message history.
-        """
-        max_retries = 6
-        if retries >= max_retries:
-            logging.info(f"Maximum attempts reached, stopping further message fetching.(attempts={retries})")
+        """Main function to fetch a random message and send it based on criteria."""
+        if retries >= 3:
+            logging.info(f"Max retries reached for guild_id={guild_id}, stopping.")
             return
-
-        str_guild_id = str(guild_id)
-        guild_config = self.config_manager.server_configs[str_guild_id]
-        logging.debug(f"Start date type: {type(guild_config[KEY_START_DATE])}, value: '{guild_config[KEY_START_DATE]}'")
-        logging.debug(f"End date type: {type(guild_config[KEY_END_DATE])}, value: '{guild_config[KEY_END_DATE]}'")
-
-        # Guild configuration criteria for the selection of the message
-        start_date = guild_config[KEY_START_DATE]
-        end_date = guild_config[KEY_END_DATE]
-        select_from = guild_config[KEY_SELECT_FROM]
-        send_to = guild_config[KEY_SEND_TO]
-        enable_attachments = guild_config[KEY_ENABLE_ATTACHMENTS]
-        enable_urls = guild_config[KEY_ENABLE_URLS]
-        enable_mentions = guild_config[KEY_ENABLE_MENTIONS]
-
-        # Fetch random message from channel's history
         try:
-            if select_from is not None:
-                # Fetch the channel to select message, if it exists
-                channel_from = await self.bot.fetch_channel(select_from)
-                channel_send_to = await self.bot.fetch_channel(send_to)
+            config = self.load_guild_config(guild_id)
+            random_date = self.generate_random_date_time(config)
+            random_messages = await self.get_random_messages(config['select_from'], random_date)
+            random.shuffle(random_messages)
+            # Loop through messages and send the first valid one
+            for random_message in random_messages:
+                if random_message and self.should_send_message(config, random_message):
+                    logging.info(f"Random messages sent: '{random_message.content}' from '{random_message.author}' at '{random_message.created_at}'")
+                    await self.send_message(config['send_to'], random_message)
+                    return  # Stop after first valid message is found
+            # Retry if no valid message was found and sent
+            await self.retry_send_message(guild_id, retries)
 
-                random_date = self.generate_random_date_time(str_guild_id)
-
-                if start_date is None or end_date is None:
-                    await channel_from.send("Use !targetchannel first")
-                    logging.info("Start date or end date not set for this server.")
-                    return
-
-                random_message = await self.get_random_message(channel=channel_from, date=random_date)
-                if random_message:
-                    # Check difference between generated time and the date the message was created at
-                    # and if the message contains a URL
-                    max_difference = timedelta(days=10)
-                    difference = abs(random_message.created_at - random_date)
-                    contains_url = self.search_for_url(random_message.content)
-
-                    # Check that the selected message meets the criteria from the guild's configuration
-                    should_send = difference <= max_difference
-                    should_send &= enable_urls or not contains_url
-                    should_send &= enable_attachments or not random_message.attachments
-                    should_send &= enable_mentions or not (random_message.mentions or random_message.role_mentions
-                                                           or random_message.mention_everyone)
-
-                    if should_send:
-                        if random_message.attachments:
-                            await channel_send_to.send(random_message.attachments[0].url)
-                            logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
-                        else:
-                            await channel_send_to.send(random_message.content)
-                            logging.info(f"Message was sent in {channel_send_to.name}: \'{random_message.content}\'")
-                    else:
-                        await asyncio.sleep(1)  # Add a short delay before retrying
-                        await self.send_random_message_around_random_date(guild_id, retries + 1)
         except discord.Forbidden:
-            logging.error("You do not have permissions to get channel message history")
-            await asyncio.sleep(1)  # Add a short delay before retrying
-            await self.send_random_message_around_random_date(guild_id, retries + 1)
+            logging.error("Permissions error when accessing channel history.")
+            await self.retry_send_message(guild_id, retries)
         except discord.HTTPException:
-            logging.error("The request to get message history failed.")
-            await asyncio.sleep(1)  # Add a short delay before retrying
-            await self.send_random_message_around_random_date(guild_id, retries + 1)
+            logging.error("Network error when fetching message history.")
+            await self.retry_send_message(guild_id, retries)
 
-    def generate_random_date_time(self, str_guild_id: str) -> datetime:
-        """Generates a random datetime within the configured start and end dates for a guild.
+    def load_guild_config(self, guild_id: int) -> dict:
+        """Loads the configuration for the specified guild."""
+        str_guild_id = str(guild_id)
+        return {
+            'start_date': self.config_manager.server_configs[str_guild_id][KEY_START_DATE],
+            'select_from': self.config_manager.server_configs[str_guild_id][KEY_SELECT_FROM],
+            'send_to': self.config_manager.server_configs[str_guild_id][KEY_SEND_TO],
+            'enable_attachments': self.config_manager.server_configs[str_guild_id][KEY_ENABLE_ATTACHMENTS],
+            'enable_urls': self.config_manager.server_configs[str_guild_id][KEY_ENABLE_URLS],
+            'enable_mentions': self.config_manager.server_configs[str_guild_id][KEY_ENABLE_MENTIONS]
+        }
 
-        Args:
-            str_guild_id (str): The guild ID as a string to fetch configuration for.
-
-        Returns:
-            datetime.datetime: A randomly selected datetime object within the configured range.
-        """
-        guild_config = self.config_manager.server_configs[str_guild_id]
-
-        start_date = datetime.fromisoformat(guild_config[KEY_START_DATE])
-        end_date = datetime.fromisoformat(guild_config[KEY_END_DATE])
-
-        difference_between_start_end_seconds = int((end_date - start_date).total_seconds())
-        random_date_time = (start_date
-                            + timedelta(0, random.randint(0, difference_between_start_end_seconds)))
+    @staticmethod
+    def generate_random_date_time(config: dict) -> datetime:
+        """Generates a random datetime within the configured start and end dates."""
+        start_date = datetime.fromisoformat(config['start_date'])
+        end_date = datetime.now().replace(tzinfo=timezone.utc)
+        random_seconds = random.randint(0, int((end_date - start_date).total_seconds()))
+        random_date_time = start_date + timedelta(seconds=random_seconds)
         logging.info(f"Generated random date: {random_date_time}")
-        # Convert date to UTC
         return random_date_time.replace(tzinfo=timezone.utc)
 
-    async def get_random_message(self, channel: discord.TextChannel, date: datetime) -> discord.Message:
-        """Fetches a message from the channel history around a specified datetime.
+    async def get_random_messages(self, channel_id: int, date: datetime) -> list[discord.Message]:
+        """Fetches (up to) 100 random messages from the channel history around a specified datetime."""
+        channel = await self.bot.fetch_channel(channel_id)
+        messages = [message async for message in channel.history(limit=100, around=date) if message.author != self.bot.user]
 
-        Args:
-            channel (discord.TextChannel): The channel from which to fetch the message.
-            date (datetime.datetime): The datetime around which to fetch a message.
+        logging.info(f"Fetched {len(messages)} messages from #{channel.name} in {channel.guild.name}")
+        return messages
 
-        Returns:
-            discord.Message: The fetched message if successful, None otherwise.
+    def should_send_message(self, config: dict, message: discord.Message) -> bool:
+        """Checks whether the message meets the criteria for being sent."""
+        contains_url = self.search_for_url(message.content)
 
-        Raises:
-            discord.HTTPException: Failure in fetching message history due to network issues.
-            discord.Forbidden: Bot lacks permission to access message history.
-        """
-        try:
-            async for message in channel.history(limit=4, around=date):
-                logging.info(f"Random message fetched: {message.content} by {message.author} "
-                             f"date: {message.created_at}")
-                if message and message.author != self.bot.user:
-                    return message
-        except discord.Forbidden:
-            logging.error("You do not have permissions to get channel message history")
-        except discord.HTTPException:
-            logging.error(f"The request to get message history failed. Channel ID: {channel}")
+        should_send = (config['enable_urls'] or not contains_url)
+        should_send &= (config['enable_attachments'] or not message.attachments)
+        should_send &= (config['enable_mentions'] or not self.message_has_mentions(message))
+
+        return should_send
+
+    @staticmethod
+    def message_has_mentions(message: discord.Message) -> bool:
+        """Checks if the message contains mentions."""
+        return bool(message.mentions or message.role_mentions or message.mention_everyone)
+
+    async def send_message(self, channel_id: int, message: discord.Message) -> NoReturn:
+        """Sends the message content or attachment to the specified channel."""
+        channel = await self.bot.fetch_channel(channel_id)
+        if message.attachments:
+            await channel.send(message.attachments[0].url)
+        else:
+            await channel.send(message.content)
+        logging.info(f"Message sent in {channel.name}: '{message.content}'")
+
+    async def retry_send_message(self, guild_id: int, retries: int) -> NoReturn:
+        """Retries sending a message after a short delay."""
+        await asyncio.sleep(1)
+        await self.send_random_message_around_random_date(guild_id, retries + 1)
 
     @staticmethod
     def search_for_url(message: str) -> bool:
-        """Determines if a message contains a URL.
-
-        Args:
-            message (str): The content of the message to search.
-
-        Returns:
-            bool: True if the message contains a URL, False otherwise.
-        """
-        url_pattern = (r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|"
-                       r"(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))")
+        """Checks if the message contains a URL."""
+        url_pattern = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
         return re.search(url_pattern, message) is not None
