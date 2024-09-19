@@ -27,11 +27,7 @@ class Bot(discord.Client):
         commands (Commands): Processes and responds to user commands.
     """
     def __init__(self, token: str) -> NoReturn:
-        """Initializes the bot with necessary configurations and permissions.
-
-        Args:
-            token: A string representing the Discord bot token for authentication.
-        """
+        """Initializes the bot with necessary configurations and permissions. """
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
@@ -49,10 +45,7 @@ class Bot(discord.Client):
         self.config_manager.update_configs()
 
     async def on_guild_join(self, guild: discord.Guild) -> NoReturn:
-        """Initialize guild's config upon joining, if it doesn't already exist
-        Args:
-            guild (discord.Guild): Discord guild instance.
-        """
+        """Initialize guild's config upon joining, if it doesn't already exist"""
         logging.info(f"Joinned a new guild: {guild.name} (ID: {guild.id})")
         if str(guild.id) not in self.config_manager.server_configs:
             self.config_manager.initialize_guild_config(guild)
@@ -62,11 +55,7 @@ class Bot(discord.Client):
             logging.info(f"Existing configuration found for guild: {guild.name} (ID: {guild.id}), no update necessary.")
 
     async def on_message(self, message: discord.Message) -> NoReturn:
-        """Responds to new messages, excluding those sent by the bot itself.
-
-        Args:
-            message (discord.Message): A discord.Message object representing the message to respond to.
-        """
+        """Responds to new messages, excluding those sent by the bot itself. """
         if message.author == self.user:
             return
         await self.commands.handle_command(message)
