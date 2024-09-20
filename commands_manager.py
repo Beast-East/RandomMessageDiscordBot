@@ -1,8 +1,8 @@
 import discord
 import logging
-import helper_funcs
+from helper_funcs import HelperFuncs
 from discord.ext import commands
-from typing import NoReturn, Optional
+from typing import NoReturn
 from poll_games import PollGames
 from config_manager import ConfigManager
 from random_message import RandomMessage
@@ -44,6 +44,7 @@ class Commands(commands.Cog):
             if current_config[KEY_SELECT_FROM] is None or current_config[KEY_SEND_TO] is None:
                 await message.channel.send("Set up the bot first with $selectandsend command(use $help for more info)")
                 return
+            await self.random_message_command(message.guild)
         elif message.content.startswith("$whosentit"):
             await self.pollgames.pollgame_who_sent_it(message)
 
@@ -60,7 +61,7 @@ class Commands(commands.Cog):
             await message.channel.send(f"There was an error in setting up the target channel")
             return
 
-        config[KEY_START_DATE] = await helper_funcs.get_first_message_datetime(channel_mentions[0])
+        config[KEY_START_DATE] = await HelperFuncs.get_first_message_datetime(channel_mentions[0])
         config[KEY_SELECT_FROM] = str(channel_mentions[0].id)
         config[KEY_SEND_TO] = str(message.channel_mentions[1].id)
         await message.channel.send(f"Random messages will be selected from {channel_mentions[0]}"

@@ -11,14 +11,15 @@ class HelperFuncs:
     def __init__(self, bot: discord.Client):
         self.bot = bot
 
-    def meets_message_criteria(self, config: dict, message: discord.Message) -> bool:
+    @staticmethod
+    def meets_message_criteria(config: dict, message: discord.Message) -> bool:
         """Checks whether the message meets the criteria for being sent."""
-        contains_url = self.search_for_url(message.content)
+        contains_url = HelperFuncs.search_for_url(message.content)
 
         criteria_result = (config[KEY_ENABLE_URLS] or not contains_url)
-        criteria_result &= (message.author != self.bot.user)
+        criteria_result &= (message.author != message.guild.me)
         criteria_result &= (config[KEY_ENABLE_ATTACHMENTS] or not message.attachments)
-        criteria_result &= (config[KEY_ENABLE_MENTIONS] or not self.message_has_mentions(message))
+        criteria_result &= (config[KEY_ENABLE_MENTIONS] or not HelperFuncs.message_has_mentions(message))
 
         return criteria_result
 
