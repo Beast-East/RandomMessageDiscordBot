@@ -23,4 +23,5 @@ After inviting the bot to your Discord server, you can use the following command
 - `$attachments`: Toggles the inclusion of messages containing attachments(True/False). False by default.
 - `$mentions`: Toggles the inclusion of messages containing mentions(True/False). False by default. When enabled, @everyone, @rolementions and @member mentions are all included.
 - `$ranmsg`: Sends a random message seleced from the entire history of the configured #sourcechannel to the #destchannel.
+- `$whosentit *duration(in seconds)*`: Randomly selects a message and generates a poll with 3 possible users who might have sent it. The users can vote on who sent it and the answer is revealed after the set duration passes.
 <br/><br/>❗Initialize the bot by using `$selectandsend` to define the source and destination channels for the random message feature to function correctly❗
