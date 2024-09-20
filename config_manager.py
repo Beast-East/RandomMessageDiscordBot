@@ -62,3 +62,16 @@ class ConfigManager:
 
         with open('server_configs.json', 'w') as file:
             json.dump(self.server_configs, file, default=custom_converter)
+
+    def load_guild_config(self, guild_id: int) -> dict:
+        """Loads the configuration for the specified guild."""
+        str_guild_id = str(guild_id)
+        return {
+            'guild_name': self.server_configs[str_guild_id][KEY_GUILD_NAME],
+            'start_date': self.server_configs[str_guild_id][KEY_START_DATE],
+            'channel_to_select_from': self.server_configs[str_guild_id][KEY_SELECT_FROM],
+            'channel_to_send_to': self.server_configs[str_guild_id][KEY_SEND_TO],
+            'enable_attachments': self.server_configs[str_guild_id][KEY_ENABLE_ATTACHMENTS],
+            'enable_urls': self.server_configs[str_guild_id][KEY_ENABLE_URLS],
+            'enable_mentions': self.server_configs[str_guild_id][KEY_ENABLE_MENTIONS]
+        }

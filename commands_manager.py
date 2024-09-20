@@ -2,6 +2,7 @@ import discord
 import logging
 from discord.ext import commands
 from typing import NoReturn, Optional
+from poll_games import PollGames
 from config_manager import ConfigManager
 from random_message import RandomMessage
 from constants import (KEY_GUILD_NAME, KEY_SELECT_FROM, KEY_SEND_TO, KEY_ENABLE_ATTACHMENTS, KEY_ENABLE_URLS,
@@ -17,11 +18,12 @@ class Commands(commands.Cog):
            config_manager (ConfigManager): The configuration manager instance to handle server configurations.
            random_message (RandomMessage): The random message handler instance to manage sending random messages.
        """
-    def __init__(self, bot: discord.Client, config_manager: ConfigManager, random_message: RandomMessage) -> NoReturn:
+    def __init__(self, bot: discord.Client, config_manager: ConfigManager, random_message: RandomMessage, pollgames: PollGames) -> NoReturn:
         """Initializes the Commands object with necessary instances. """
         self.bot = bot
         self.config_manager = config_manager
         self.random_message = random_message
+        self.pollgames = pollgames
 
     # COMMAND LIST
     async def handle_command(self, message: discord.Message) -> NoReturn:
@@ -41,7 +43,8 @@ class Commands(commands.Cog):
             if current_config[KEY_SELECT_FROM] is None or current_config[KEY_SEND_TO] is None:
                 await message.channel.send("Set up the bot first with $selectandsend command(use $help for more info)")
                 return
-            await self.random_message_command(message.guild)
+        elif message.content.startswith("$whosentit"):
+            await self.pollgames.pollgame_who_sent_it(message)
 
     # COMMAND IMPLEMENTATIONS
     @staticmethod
