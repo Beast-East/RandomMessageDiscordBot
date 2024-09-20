@@ -5,6 +5,7 @@ from poll_games import PollGames
 from config_manager import ConfigManager
 from random_message import RandomMessage
 from commands_manager import Commands
+from helper_funcs import HelperFuncs
 
 
 logging.basicConfig(
@@ -38,6 +39,7 @@ class Bot(discord.Client):
         self.random_message = RandomMessage(self, self.config_manager)
         self.pollgames = PollGames(self.random_message, self.config_manager)
         self.commands = Commands(self, self.config_manager, self.random_message, self.pollgames)
+        self.helper_funcs = HelperFuncs(self)
 
     async def on_ready(self) -> NoReturn:
         """Handles actions to be performed once the bot is ready and connected to Discord."""

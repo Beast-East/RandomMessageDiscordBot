@@ -2,7 +2,8 @@ import discord
 import random
 import logging
 import asyncio
-from typing import NoReturn
+from helper_funcs import HelperFuncs
+from typing import NoReturn, Optional
 from random_message import RandomMessage
 from config_manager import ConfigManager
 
@@ -21,7 +22,7 @@ class PollGames:
             return
 
         config = self.config_manager.load_guild_config(channel.guild.id)
-        random_date = self.random_message_manager.generate_random_date_time(config)
+        random_date = HelperFuncs.generate_random_date_time(config)
         random_messages = await self.random_message_manager.get_random_messages(config, random_date)
         random.shuffle(random_messages)
 
@@ -70,7 +71,7 @@ class PollGames:
         await countdown_message.edit(content=f"Answer: {answer}")
 
     @staticmethod
-    def get_duration_from_message(content: str) -> int:
+    def get_duration_from_message(content: str) -> Optional[int]:
         """Extracts the duration from the message content."""
         try:
             # Split the content and get the second part

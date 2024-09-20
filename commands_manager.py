@@ -1,5 +1,6 @@
 import discord
 import logging
+import helper_funcs
 from discord.ext import commands
 from typing import NoReturn, Optional
 from poll_games import PollGames
@@ -55,20 +56,19 @@ class Commands(commands.Cog):
     async def select_and_send_command(self, message: discord.Message, config: dict) -> NoReturn:
         """Sets the target text channel for random messages and updates the configuration."""
         channel_mentions = message.channel_mentions
-        if channel_mentions:
-            config[KEY_START_DATE] = await self.get_first_message_datetime(channel_mentions[0])
+        if not channel_mentions:
+            await message.channel.send(f"There was an error in setting up the target channel")
+            return
 
-            config[KEY_SELECT_FROM] = str(channel_mentions[0].id)
-            config[KEY_SEND_TO] = str(message.channel_mentions[1].id)
-
-            await message.channel.send(f"Random messages will be selected from {channel_mentions[0]}"
+        config[KEY_START_DATE] = await helper_funcs.get_first_message_datetime(channel_mentions[0])
+        config[KEY_SELECT_FROM] = str(channel_mentions[0].id)
+        config[KEY_SEND_TO] = str(message.channel_mentions[1].id)
+        await message.channel.send(f"Random messages will be selected from {channel_mentions[0]}"
                                        f" and send to {channel_mentions[1]}")
-            logging.info(f"Select from {channel_mentions[0]} and send to {channel_mentions[1]}"
+        logging.info(f"Select from {channel_mentions[0]} and send to {channel_mentions[1]}"
                          f" with startdate: {config[KEY_START_DATE]}"
                          f"in {config[KEY_GUILD_NAME]}")
-            self.config_manager.save_configs_to_file()
-        else:
-            await message.channel.send(f"There was an error in setting ({message.channel.name} as the target channel")
+        self.config_manager.save_configs_to_file()
 
     async def urls_command(self, message: discord.Message, config: dict) -> NoReturn:
         """Toggles the inclusion of URLs in random message selections."""
@@ -94,28 +94,3 @@ class Commands(commands.Cog):
     async def random_message_command(self, guild: discord.Guild) -> NoReturn:
         """Triggers the sending of a random message from the configured channel."""
         await self.random_message.send_random_message_around_random_date(guild.id)
-
-    @staticmethod
-    async def get_first_message_datetime(channel: discord.TextChannel) -> Optional[str]:
-        """Fetches the datetime of the first message in the specified channel.
-        Args:
-            channel (discord.TextChannel): The channel to check.
-
-        Returns:
-            str: The ISO format datetime string of the first message, or None if unable to fetch.
-
-        Raises:
-            discord.Forbidden: If the bot does not have permissions to access message history.
-            discord.HTTPException: If fetching the message history fails.
-        """
-        try:
-            first_message = None
-            async for message in channel.history(limit=1, oldest_first=True):
-                first_message = message
-            return str(first_message.created_at)
-        except discord.Forbidden:
-            logging.error("You do not have permissions to get channel message history")
-            return
-        except discord.HTTPException:
-            logging.error("The request to get message history failed(can't get first message).")
-            return
